@@ -1,71 +1,85 @@
 #include "mttopt.h"
+#include <stdio.h>
 
-int mttopt_exctr_optv(int argc, char **argv, int optc, struct mttopt_opt_t* optv)
+int mttopt_exctr_opts(int argc, char **args, int optc, struct mttopt_opt_t *opts)
 {
-	char **av, **avc, *arg, ac;
-	struct mttopt_opt_t *ov, *ovc;
+	char **as, **asc, *arg, *a, ac;
+	struct mttopt_opt_t *os, *osc;
 
-	if (argv && optv)
+	if (args && opts)
 	{
-		av = argv;
+		as = args;
 
 		if (argc < 0)
 		{
-			while (*av) av++;
+			while (*as != NULL) as++;
 
-			argc = av - argv;
+			argc = as - args;
 		}
 
-		ov = optv;
+		as = args;
+		asc = args + argc;
+		os = opts;
 
 		if (optc < 0)
 		{
-			while (ov->shrt) ov++;
+			while (os->shrt) os++;
 
-			optc = ov - optv;
+			optc = os - opts;
 		}
 
-		av = argv, avc = argv + argc, ovc = optv + optc;
+		osc = opts + optc;
 
-		while (av < avc)
+		while (as < asc)
 		{
-			arg = *av;
+			arg = *as;
 
 			if (*arg == '-')
 			{
-				while (ac = *++arg, ac)
+				a = arg + 1;
+				ac = *a;
+
+				while (ac)
 				{
-					ov = optv;
+					a++;
+					os = opts;
 
-					while (ov < ovc)
+					while (os->shrt)
 					{
-						if (ac == ov->shrt)
+						if (ac == os->shrt)
 						{
-							if (ov->fs)
+							if (os->flag)
 							{
-								ov->arg = *++arg ? arg : *++av;
-
-								goto next;
-							}
-							else
-							{
-								ov->shrt = 0;
+								os->shrt = 0;
 
 								break;
 							}
+							else
+							{
+								if (*a) os->arg = a;
+								else
+								{
+									as++;
+									os->arg = *as;
+								}
+
+								goto next;
+							}
 						}
-								
-						ov++;
+
+						os++;
 					}
+
+					ac = *a;
 				}
 			}
 			else break;
 
-		next:
-			av++;
+	next:
+			as++;
 		}
 
-		return av - argv;
+		return as - args;
 	}
 
 	return -1;
