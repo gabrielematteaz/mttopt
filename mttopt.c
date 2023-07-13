@@ -39,6 +39,13 @@ int mttopt_exctr_opts(int argc, char **args, int optc, struct mttopt_opt_t *opts
 				a = arg + 1;
 				ac = *a;
 
+				if (ac == '-')
+				{
+					as++;
+					
+					break;
+				}
+
 				while (ac)
 				{
 					a++;
