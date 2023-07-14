@@ -1,38 +1,38 @@
 #include "mttopt.h"
-#include <stdio.h>
 
-int mttopt_exctr_opts(int argc, char **args, int optc, struct mttopt_opt_t *opts)
+int mttopt_extract_optv(int argc, char **argv, int optc, struct mttopt_opt_t *optv)
 {
-	char **as, **asc, *arg, *a, ac;
-	struct mttopt_opt_t *os, *osc;
+	char **av, **avc, *arg, *a, ac;
+	struct mttopt_opt_t *ov, *ovc;
 
-	if (args && opts)
+	if (argv != NULL && optv != NULL)
 	{
-		as = args;
+		av = argv + 1;
 
-		if (argc < 0)
+		if (argc == 0)
 		{
-			while (*as != NULL) as++;
+			while (*av != NULL) av++;
 
-			argc = as - args;
+			argc = av - argv;
 		}
 
-		as = args;
-		asc = args + argc;
-		os = opts;
+		avc = argv + argc;
 
-		if (optc < 0)
+		if (optc == 0)
 		{
-			while (os->shrt) os++;
+			ov = optv;
 
-			optc = os - opts;
+			while (ov->val) ov++;
+
+			optc = ov - optv;
 		}
 
-		osc = opts + optc;
+		av = argv + 1;
+		ovc = optv + optc;
 
-		while (as < asc)
+		while (av < avc)
 		{
-			arg = *as;
+			arg = *av;
 
 			if (*arg == '-')
 			{
@@ -41,40 +41,52 @@ int mttopt_exctr_opts(int argc, char **args, int optc, struct mttopt_opt_t *opts
 
 				if (ac == '-')
 				{
-					as++;
-					
+					av++;
+
 					break;
 				}
 
 				while (ac)
 				{
 					a++;
-					os = opts;
+					ov = optv;
 
-					while (os->shrt)
+					while (ov < ovc)
 					{
-						if (ac == os->shrt)
+						if (ac == ov->val)
 						{
-							if (os->flag)
+							if (ov->flags & CANNOT_REPEAT && ov->status == FOUND)
 							{
-								os->shrt = 0;
+								if (ov->flags & HAS_ARG)
+								{
+									if (*a) break;
+									else
+									{
+										av++;
 
-								break;
+										goto next;
+									}
+								}
+								else break;
 							}
-							else
+
+							ov->status = FOUND;
+
+							if (ov->flags & HAS_ARG)
 							{
-								if (*a) os->arg = a;
+								if (*a) ov->arg = a;
 								else
 								{
-									as++;
-									os->arg = *as;
+									av++;
+									ov->arg = *av;
 								}
 
 								goto next;
 							}
+							else break;
 						}
-
-						os++;
+						
+						ov++;
 					}
 
 					ac = *a;
@@ -82,12 +94,12 @@ int mttopt_exctr_opts(int argc, char **args, int optc, struct mttopt_opt_t *opts
 			}
 			else break;
 
-	next:
-			as++;
+		next:
+			av++;
 		}
 
-		return as - args;
+		return av - argv;
 	}
 
-	return -1;
+	return 0;
 }
