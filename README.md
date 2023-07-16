@@ -5,7 +5,8 @@ My personal C library to parse arguments options
 - mttopt_opt_t
 
 # Enums
-- mttopt_opt_flags_t
+- mttopt_opt_copymode_t
+- mttopt_opt_argmode_t
 - mttopt_opt_status_t
 
 # Functions
@@ -20,14 +21,14 @@ In this example I use the "mttopt_exctract_optv" function without a limit (argc 
 int main(int argc, char *argv[])
 {
 	struct mttopt_opt_t optv[] = {
-		{ 'f', HAS_ARG, NOT_FOUND, },
-		{ 't', HAS_ARG, NOT_FOUND, },
-		{ 'u', HAS_ARG | CANNOT_REPEAT, NOT_FOUND, },
+		{ 'f', 0, MUST_HAVE_ARG, 0, },
+		{ 't', 0, MUST_HAVE_ARG, 0, },
+		{ 'u', IGNORE_COPIES, 0, 0, },
 	};
 
-	int argvoff = mttopt_extract_optv(0, argv, 3, optv);
+	int avoff = mttopt_extract_optv(0, argv, 3, optv);
 
-	if (argvoff > 0)
+	if (avoff)
 	{
 		printf("First argument: %i\n", argvoff);
 
@@ -35,7 +36,7 @@ int main(int argc, char *argv[])
 
 		if (optv[1].status == FOUND) printf("'%c' %s\n", optv[1].val, optv[1].arg);
 
-		if (optv[2].status == FOUND) printf("'%c' %s\n", optv[2].val, optv[2].arg);
+		if (optv[2].status == FOUND) printf("'%c'\n", optv[2].val);
 	}
 
 	return 0;
