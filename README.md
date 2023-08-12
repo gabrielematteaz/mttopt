@@ -4,16 +4,18 @@ My personal C library to parse arguments options
 # Structs
 - mttopt_opt_t
 
-# Enums
-- mttopt_opt_copymode_t
-- mttopt_opt_argmode_t
-- mttopt_opt_status_t
+# Macros
+- OPT_FLAGS_OVERWRITE_ON_COPY
+- OPT_FLAGS_IGNORE_COPIES
+- OPT_FLAGS_EXIT_ON_COPY
+- OPT_FLAGS_HAS_NO_ARG
+- OPT_FLAGS_CAN_HAVE_ARG
+- OPT_FLAGS_MUST_HAVE_ARG
 
 # Functions
-- mttopt_extract_optv
+- mttopt_extr_optv
 
 # Example
-In this example I use the "mttopt_exctract_optv" function without a limit (argc == 0) to get 3 options
 ```c
 #include "mttlib/mttopt/mttopt.h"
 #include <stdio.h>
@@ -21,22 +23,23 @@ In this example I use the "mttopt_exctract_optv" function without a limit (argc 
 int main(int argc, char *argv[])
 {
 	struct mttopt_opt_t optv[] = {
-		{ 'f', 0, MUST_HAVE_ARG, 0, },
-		{ 't', 0, MUST_HAVE_ARG, 0, },
-		{ 'u', IGNORE_COPIES, 0, 0, },
+		'f', OPT_FLAGS_MUST_HAVE_ARG, 0, NULL,
+		't', OPT_FLAGS_CAN_HAVE_ARG, 0, NULL,
+		'u', OPT_FLAGS_HAS_NO_ARG, 0, NULL
 	};
 
-	int avoff = mttopt_extract_optv(0, argv, 3, optv);
+	char **av = argv + mttopt_extr_optv(argc, argv, 3, optv), **avc = argv + argc;
 
-	if (avoff)
+	if (optv[0].found) printf("'%c' '%s'\n", optv[0].shrt, optv[0].arg);
+
+	if (optv[1].found) printf("'%c' '%s'\n", optv[1].shrt, optv[1].arg);
+
+	if (optv[2].found) printf("'%c'\n", optv[2].shrt);
+
+	while (av < avc)
 	{
-		printf("First argument: %i\n", argvoff);
-
-		if (optv[0].status == FOUND) printf("'%c' %s\n", optv[0].val, optv[0].arg);
-
-		if (optv[1].status == FOUND) printf("'%c' %s\n", optv[1].val, optv[1].arg);
-
-		if (optv[2].status == FOUND) printf("'%c'\n", optv[2].val);
+		puts(*av);
+		av++;
 	}
 
 	return 0;
