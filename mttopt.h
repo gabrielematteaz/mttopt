@@ -6,10 +6,18 @@
 
 struct mttopt_opt_t
 {
-	uint8_t shrt;
+	char shrt;
 	uint8_t flags;
 	uint8_t found;
 	const char *arg;
+};
+
+struct mttopt_wopt_t
+{
+	wchar_t wshrt;
+	uint8_t flags;
+	uint8_t found;
+	const wchar_t *warg;
 };
 
 #define OPT_FLAGS_OVERWRITE_ON_COPY 0
@@ -20,5 +28,6 @@ struct mttopt_opt_t
 #define OPT_FLAGS_MUST_HAVE_ARG 12
 
 int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv);
+int mttopt_extr_woptv(int wargc, wchar_t *wargv[], int woptc, struct mttopt_wopt_t *woptv);
 
 #endif
