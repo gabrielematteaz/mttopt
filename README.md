@@ -3,6 +3,7 @@ My personal C library to parse arguments options
 
 # Structs
 - mttopt_opt_t
+- mttopt_wopt_t
 
 # Macros
 - OPT_FLAGS_OVERWRITE_ON_COPY
@@ -14,10 +15,11 @@ My personal C library to parse arguments options
 
 # Functions
 - mttopt_extr_optv
+- mttopt_extr_woptv
 
 # Example
 ```c
-#include "mttlib/mttopt/mttopt.h"
+#include "mttopt.h"
 #include <stdio.h>
 
 int main(int argc, char *argv[])
