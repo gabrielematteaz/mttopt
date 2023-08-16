@@ -2,23 +2,18 @@
 
 int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv)
 {
-	char **av, **avc, *arg, *a;
-	struct mttopt_opt_t *ov, *ovc;
-	uint8_t ac, flags;
-
 	if (argv == NULL || optv == NULL) return 0;
 
-	av = argv + 1;
-	avc = argv + argc;
-	ovc = optv + optc;
+	char **av = argv + 1, **avc = argv + argc;
+	struct mttopt_opt_t *ovc = optv + optc;
 	
 	while (av < avc)
 	{
-		arg = *av;
+		char *arg = *av;
 
 		if (*arg == '-')
 		{
-			a = arg + 1;
+			char *a = arg + 1;
 
 			if (*a == '-')
 			{
@@ -27,25 +22,25 @@ int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv
 				break;
 			}
 
-			ac = *a;
+			char ac = *a;
 
 			while (ac)
 			{
-				ov = optv;
+				struct mttopt_opt_t *ov = optv;
 
 				while (ov < ovc)
 				{
 					if (ac == ov->shrt)
 					{
-						flags = ov->flags;
+						int fs = ov->fs;
 
 						if (ov->found)
 						{
-							if (flags & OPT_FLAGS_IGNORE_COPIES)
+							if (fs & OPT_FS_IGNORE_COPIES)
 							{
-								if (flags & OPT_FLAGS_CAN_HAVE_ARG)
+								if (fs & OPT_FS_CAN_HAVE_ARG)
 								{
-									if (flags & OPT_FLAGS_MUST_HAVE_ARG)
+									if (fs & OPT_FS_MUST_HAVE_ARG)
 									{
 										a++;
 
@@ -57,11 +52,11 @@ int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv
 
 								break;
 							}
-							else if (flags & OPT_FLAGS_EXIT_ON_COPY)
+							else if (fs & OPT_FS_EXIT_ON_COPY)
 							{
 								av++;
 
-								if (flags & OPT_FLAGS_MUST_HAVE_ARG)
+								if (fs & OPT_FS_MUST_HAVE_ARG)
 								{
 									a++;
 
@@ -74,11 +69,11 @@ int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv
 
 						ov->found = 1;
 
-						if (flags & OPT_FLAGS_CAN_HAVE_ARG)
+						if (fs & OPT_FS_CAN_HAVE_ARG)
 						{
 							a++;
 
-							if ((flags & OPT_FLAGS_MUST_HAVE_ARG) == 12)
+							if ((fs & OPT_FS_MUST_HAVE_ARG) == 12)
 							{
 								if (*a) ov->arg = a;
 								else
@@ -116,23 +111,18 @@ exit:
 
 int mttopt_extr_woptv(int wargc, wchar_t *wargv[], int woptc, struct mttopt_wopt_t *woptv)
 {
-	wchar_t **wav, **wavc, *warg, *wa, wac;
-	struct mttopt_wopt_t *wov, *wovc;
-	uint8_t flags;
-
 	if (wargv == NULL || woptv == NULL) return 0;
 
-	wav = wargv + 1;
-	wavc = wargv + wargc;
-	wovc = woptv + woptc;
+	wchar_t **wav = wargv + 1, **wavc = wargv + wargc;
+	struct mttopt_wopt_t *wovc = woptv + woptc;
 	
 	while (wav < wavc)
 	{
-		warg = *wav;
+		wchar_t *warg = *wav;
 
 		if (*warg == '-')
 		{
-			wa = warg + 1;
+			wchar_t *wa = warg + 1;
 
 			if (*wa == '-')
 			{
@@ -141,25 +131,25 @@ int mttopt_extr_woptv(int wargc, wchar_t *wargv[], int woptc, struct mttopt_wopt
 				break;
 			}
 
-			wac = *wa;
+			wchar_t wac = *wa;
 
 			while (wac)
 			{
-				wov = woptv;
+				struct mttopt_wopt_t *wov = woptv;
 
 				while (wov < wovc)
 				{
-					if (wac == wov->wshrt)
+					if (wac == wov->shrt)
 					{
-						flags = wov->flags;
+						int fs = wov->fs;
 
 						if (wov->found)
 						{
-							if (flags & OPT_FLAGS_IGNORE_COPIES)
+							if (fs & OPT_FS_IGNORE_COPIES)
 							{
-								if (flags & OPT_FLAGS_CAN_HAVE_ARG)
+								if (fs & OPT_FS_CAN_HAVE_ARG)
 								{
-									if (flags & OPT_FLAGS_MUST_HAVE_ARG)
+									if (fs & OPT_FS_MUST_HAVE_ARG)
 									{
 										wa++;
 
@@ -171,11 +161,11 @@ int mttopt_extr_woptv(int wargc, wchar_t *wargv[], int woptc, struct mttopt_wopt
 
 								break;
 							}
-							else if (flags & OPT_FLAGS_EXIT_ON_COPY)
+							else if (fs & OPT_FS_EXIT_ON_COPY)
 							{
 								wav++;
 
-								if (flags & OPT_FLAGS_MUST_HAVE_ARG)
+								if (fs & OPT_FS_MUST_HAVE_ARG)
 								{
 									wa++;
 
@@ -188,25 +178,25 @@ int mttopt_extr_woptv(int wargc, wchar_t *wargv[], int woptc, struct mttopt_wopt
 
 						wov->found = 1;
 
-						if (flags & OPT_FLAGS_CAN_HAVE_ARG)
+						if (fs & OPT_FS_CAN_HAVE_ARG)
 						{
 							wa++;
 
-							if ((flags & OPT_FLAGS_MUST_HAVE_ARG) == 12)
+							if ((fs & OPT_FS_MUST_HAVE_ARG) == 12)
 							{
-								if (*wa) wov->warg = wa;
+								if (*wa) wov->arg = wa;
 								else
 								{
 									wav++;
-									wov->warg = *wav;
+									wov->arg = *wav;
 								}
 							}
-							else wov->warg = *wa ? wa : NULL;
+							else wov->arg = *wa ? wa : NULL;
 
 							goto next;
 						}
 
-						wov->warg = NULL;
+						wov->arg = NULL;
 
 						break;
 					}
