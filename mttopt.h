@@ -18,16 +18,6 @@ struct mttopt_opt_t
 	const char *arg;
 };
 
-struct mttopt_wopt_t
-{
-	wchar_t shrt;
-	int fs;
-	int found;
-	const wchar_t *arg;
-};
-
 int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv);
-
-int mttopt_extr_woptv(int wargc, wchar_t *wargv[], int woptc, struct mttopt_wopt_t *woptv);
 
 #endif
