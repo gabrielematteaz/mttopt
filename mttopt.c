@@ -1,110 +1,109 @@
 #include "mttopt.h"
 
-int mttopt_extr_optv(int argc, char *argv[], int optc, struct mttopt_opt_t *optv)
+char *curopt = NULL, **curarg = NULL, **notopt = NULL;
+
+struct mttopt_opt_t *mttopt_extr_opt(int argc, char *argv[], int optc, struct mttopt_opt_t *optv)
 {
-	if (argv == NULL || optv == NULL) return 0;
-
-	char **av = argv + 1, **avc = argv + argc;
-	struct mttopt_opt_t *ovc = optv + optc;
-	
-	while (av < avc)
+	if (curopt)
 	{
-		char *arg = *av;
+	parseopt:
+		struct mttopt_opt_t *ov = optv, *ovc = ov + optc;
 
-		if (*arg == '-')
+		while (ov < ovc)
 		{
-			char *a = arg + 1;
-
-			if (*a == '-')
+			if (*curopt == ov->alias)
 			{
-				av++;
+				enum mttopt_opt_fs_t fs = ov->fs;
 
-				break;
-			}
+				curopt++;
 
-			char ac = *a;
-
-			while (ac)
-			{
-				struct mttopt_opt_t *ov = optv;
-
-				while (ov < ovc)
+				if (fs == OPTIONAL_ARG)
 				{
-					if (ac == ov->shrt)
+					ov->arg = *curopt ? curopt : NULL;
+					curopt = NULL;
+					curarg++;
+				}
+				else if (fs == REQUIRED_ARG)
+				{
+					if (*curopt) ov->arg = curopt;
+					else
 					{
-						int fs = ov->fs;
+						curarg++;
 
-						if (ov->found)
+						if (curarg == argv + argc)
 						{
-							if (fs & OPT_FS_IGNORE_COPIES)
-							{
-								if (fs & OPT_FS_CAN_HAVE_ARG)
-								{
-									if (fs & OPT_FS_MUST_HAVE_ARG)
-									{
-										a++;
+							curopt = NULL;
+							notopt = curarg;
+							curarg = NULL;
 
-										if (*a == 0) av++;
-									}
-
-									goto next;
-								}
-
-								break;
-							}
-							else if (fs & OPT_FS_EXIT_ON_COPY)
-							{
-								av++;
-
-								if (fs & OPT_FS_MUST_HAVE_ARG)
-								{
-									a++;
-
-									if (*a == 0) av++;
-								}
-
-								goto exit;
-							}
+							return NULL;
 						}
 
-						ov->found = 1;
-
-						if (fs & OPT_FS_CAN_HAVE_ARG)
-						{
-							a++;
-
-							if ((fs & OPT_FS_MUST_HAVE_ARG) == 12)
-							{
-								if (*a) ov->arg = a;
-								else
-								{
-									av++;
-									ov->arg = *av;
-								}
-							}
-							else ov->arg = *a ? a : NULL;
-
-							goto next;
-						}
-
-						ov->arg = NULL;
-
-						break;
+						ov->arg = *curarg;
 					}
 
-					ov++;
+					curopt = NULL;
+					curarg++;
+				}
+				else if (*curopt == 0)
+				{
+					curopt = NULL;
+					curarg++;
 				}
 
-				a++;
-				ac = *a;
+				return ov;
+			}
+
+			ov++;
+		}
+
+		curopt++;
+
+		if (*curopt) goto parseopt;
+
+		curopt = NULL;
+		curarg++;
+
+		goto parsearg;
+	}
+	else if (curarg)
+	{
+	parsearg:
+		if (curarg < argv + argc)
+		{
+			char *ca = *curarg;
+
+			if (ca && *ca == '-')
+			{
+				ca++;
+
+				if (*ca)
+				{
+					if (*ca == '-') curarg++;
+					else
+					{
+						curopt = ca;
+
+						goto parseopt;
+					}
+				}
 			}
 		}
-		else break;
 
-	next:
-		av++;
+		curopt = NULL;
+		notopt = curarg;
+		curarg = NULL;
+
+		return NULL;
 	}
+	else
+	{
+		notopt = NULL;
 
-exit:
-	return av - argv;
+		if (argv == NULL) return NULL;
+
+		curarg = argv + 1;
+
+		goto parsearg;
+	}
 }
